@@ -1,70 +1,130 @@
-# Getting Started with Create React App
+# 使用 React test Library 和 Jest 进行测试驱动开发 (TDD)
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+> 如果我们使用create-react-app启动我们的应用程序，我们不需要添加任何包安装。
 
-## Available Scripts
+## 参考教程
 
-In the project directory, you can run:
+1. https://www.robinwieruch.de/react-testing-library/
 
-### `npm start`
+2. https://testing-library.com/docs/react-testing-library/intro/
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+3. https://medium.com/make-it-heady/test-driven-development-tdd-with-react-testing-library-jest-906085418f
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## 开始测试之前
 
-### `npm test`
+1. it or test: 这基本上描述了测试。它需要两个参数，例如测试名称和保存整个测试的函数。
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+2. expect: 通过测试所需的条件。预期条件会将接收到的参数与匹配器进行比较。
 
-### `npm run build`
+3. matcher: 与您期望的情况相对应的功能。
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+4. render：渲染给定组件的函数，该组件返回一个 React 元素
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+## 核心
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+```jsx
+import React from 'react';
 
-### `npm run eject`
+function App() {
+  const [search, setSearch] = React.useState('');
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+  function handleChange(event) {
+    setSearch(event.target.value);
+  }
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+  return (
+    <div>
+      <Search value={search} onChange={handleChange}>
+        Search:
+      </Search>
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+      <p>Searches for {search ? search : '...'}</p>
+    </div>
+  );
+}
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+function Search({ value, onChange, children }) {
+  return (
+    <div>
+      <label htmlFor="search">{children}</label>
+      <input
+        id="search"
+        type="text"
+        value={value}
+        onChange={onChange}
+      />
+    </div>
+  );
+}
 
-## Learn More
+export default App;
+```
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+上述react组件到文档中
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+```html
+<body>
+  <div>
+    <div>
+      <div>
+        <label
+          for="search"
+        >
+          Search:
+        </label>
+        <input
+          id="search"
+          type="text"
+          value=""
+        />
+      </div>
+      <p>
+        Searches for
+        ...
+      </p>
+    </div>
+  </div>
+</body>
+```
 
-### Code Splitting
+## 选择elements
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+```js
+import React from 'react';
+import { render, screen } from '@testing-library/react';
 
-### Analyzing the Bundle Size
+import App from './App';
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+describe('App', () => {
+  test('renders App component', () => {
+    render(<App />);
 
-### Making a Progressive Web App
+    expect(screen.getByText('Search:')).toBeInTheDocument();
+  });
+});
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+## 搜索类型
 
-### Advanced Configuration
+```js
+import React from 'react';
+import { render, screen } from '@testing-library/react';
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+import App from './App';
 
-### Deployment
+describe('App', () => {
+  test('renders App component', () => {
+    render(<App />);
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+    expect(screen.getByRole('textbox')).toBeInTheDocument();
+  });
+});
+```
 
-### `npm run build` fails to minify
+```js
+LabelText的： getByLabelText：<label for="search" />
+占位符文本：getByPlaceholderText：<input placeholder="Search" />
+AltText： getByAltText：<img alt="profile" />
+显示值： getByDisplayValue：<input value="JavaScript" />
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
